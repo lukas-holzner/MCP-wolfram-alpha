@@ -89,7 +89,7 @@ async def handle_call_tool(
             response = await client.aquery(input=arguments["query"])
             result_text = next(response.results).text
         except Exception as e:
-            result_text = "Error: Failed to query Wolfram Alpha: " + str(e)
+            raise Exception("Failed to query Wolfram Alpha") from e
 
         return [
             types.TextContent(
