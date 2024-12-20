@@ -1,4 +1,4 @@
-# MCP-wolfram-alpha MCP server
+# MCP-wolfram-alpha
 
 A MCP server to connect to wolfram alpha API.
 
