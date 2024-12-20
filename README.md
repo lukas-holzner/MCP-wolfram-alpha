@@ -2,6 +2,10 @@
 
 A MCP server to connect to wolfram alpha API.
 
+<a href="https://glama.ai/mcp/servers/q5fud9cttp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/q5fud9cttp/badge" />
+</a>
+
 ## Components
 
 ### Prompts
