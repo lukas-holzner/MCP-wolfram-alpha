@@ -1,8 +1,10 @@
+import base64
 from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
 import mcp.types as types
 import mcp.server.stdio
 from .wolfram_client import client
+import httpx
 
 server = Server("MCP-wolfram-alpha")
 
@@ -85,18 +87,41 @@ async def handle_call_tool(
         raise ValueError("Missing arguments")
 
     if name == "query-wolfram-alpha":
+        results: list[types.TextContent | types.ImageContent | types.EmbeddedResource] = []
+        query = arguments.get("query")
+        if not query:
+            raise ValueError("Missing 'query' parameter for Wolfram Alpha tool")
+
         try:
-            response = await client.aquery(input=arguments["query"])
-            result_text = next(response.results).text
+            response = await client.aquery(query)
         except Exception as e:
             raise Exception("Failed to query Wolfram Alpha") from e
+        
+        try:
+            async with httpx.AsyncClient() as http_client:
+                for pod in response.pods:
+                    for subpod in pod.subpods:
 
-        return [
-            types.TextContent(
-                type="text",
-                text=result_text,
-            )
-        ]
+                        if subpod.get("plaintext"):  # Handle text content
+                            results.append(types.TextContent(
+                                type="text",
+                                text=subpod.plaintext
+                            ))
+                            
+                        elif subpod.get("img"):  # Handle image content
+                            img_url = subpod.img["@src"]
+                            img_response = await http_client.get(img_url)
+                            if img_response.status_code == 200:
+                                img_base64 = base64.b64encode(img_response.content).decode('utf-8')
+                                results.append(types.ImageContent(
+                                    type="image",
+                                    data=img_base64,
+                                    mimeType="image/png"
+                                ))
+        except Exception as e:
+            raise Exception("Failed to parse response from Wolfram Alpha") from e
+
+        return results
 
     raise ValueError(f"Unknown tool: {name}")
 
