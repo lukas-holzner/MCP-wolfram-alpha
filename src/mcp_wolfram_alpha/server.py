@@ -1,6 +1,6 @@
 import base64
 from mcp.server.models import InitializationOptions
-from mcp.server import NotificationOptions, Server
+from mcp.server.lowlevel import NotificationOptions, Server
 import mcp.types as types
 import mcp.server.stdio
 from .wolfram_client import client
