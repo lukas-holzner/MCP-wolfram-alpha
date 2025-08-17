@@ -102,22 +102,23 @@ async def handle_call_tool(
                 for pod in response.pods:
                     for subpod in pod.subpods:
 
-                        if subpod.get("plaintext"):  # Handle text content
+                        if subpod.plaintext:  # Handle text content
                             results.append(types.TextContent(
                                 type="text",
                                 text=subpod.plaintext
                             ))
                             
-                        elif subpod.get("img"):  # Handle image content
-                            img_url = subpod.img["@src"]
-                            img_response = await http_client.get(img_url)
-                            if img_response.status_code == 200:
-                                img_base64 = base64.b64encode(img_response.content).decode('utf-8')
-                                results.append(types.ImageContent(
-                                    type="image",
-                                    data=img_base64,
-                                    mimeType="image/png"
-                                ))
+                        elif subpod.img:  # Handle image content
+                            img_url = subpod.img.get("src")
+                            if img_url:
+                                img_response = await http_client.get(img_url)
+                                if img_response.status_code == 200:
+                                    img_base64 = base64.b64encode(img_response.content).decode('utf-8')
+                                    results.append(types.ImageContent(
+                                        type="image",
+                                        data=img_base64,
+                                        mimeType="image/png"
+                                    ))
         except Exception as e:
             raise Exception("Failed to parse response from Wolfram Alpha") from e
 
@@ -134,7 +135,7 @@ async def main():
             write_stream,
             InitializationOptions(
                 server_name="MCP-wolfram-alpha",
-                server_version="0.2.1",
+                server_version="0.2.2",
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
                     experimental_capabilities={},
