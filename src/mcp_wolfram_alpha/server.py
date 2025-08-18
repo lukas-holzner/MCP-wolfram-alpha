@@ -6,8 +6,6 @@ import mcp.server.stdio
 from .wolfram_client import client
 import httpx
 
-# Initialize logging write to file
-
 server = Server("MCP-wolfram-alpha")
 
 
