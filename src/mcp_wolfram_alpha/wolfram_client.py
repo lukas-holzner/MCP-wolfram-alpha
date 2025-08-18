@@ -13,13 +13,12 @@ class WolframAlphaJSONClient:
     
     async def aquery(self, query: str) -> Dict[str, Any]:
         """
-        Query Wolfram Alpha using JSON API
+        Query Wolfram Alpha using JSON APId
         """
         params = {
             "input": query,
             "appid": self.app_id,
-            "output": "json",
-            "format": "plaintext"
+            "output": "json"
         }
         
         async with httpx.AsyncClient() as client:
@@ -27,12 +26,6 @@ class WolframAlphaJSONClient:
             response.raise_for_status()
             
             return response.json()
-    
-    def query(self, query: str) -> Dict[str, Any]:
-        """
-        Synchronous wrapper for aquery
-        """
-        return asyncio.run(self.aquery(query))
 
 
 # Create a compatibility layer to match the original wolframalpha interface
@@ -86,11 +79,6 @@ class CompatibleWolframClient:
         json_result = await self.json_client.aquery(query)
         return WolframResult(json_result)
     
-    def query(self, query: str) -> WolframResult:
-        """
-        Sync query that returns a result compatible with the original interface
-        """
-        return asyncio.run(self.aquery(query))
 
 
 api_key = os.getenv("WOLFRAM_API_KEY")
